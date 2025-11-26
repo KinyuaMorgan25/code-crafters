@@ -49,19 +49,37 @@ def fetch_book_catalog(
 
 
 def fetch_book_details(book_id: int) -> Optional[Dict]:
-    query = """
+    book = run_query(
+        """
         SELECT
             b.*,
-            c.name AS category_name,
-            GROUP_CONCAT(CONCAT(a.first_name, ' ', a.last_name) SEPARATOR ', ') AS authors
+            c.name AS category_name
         FROM books b
         LEFT JOIN categories c ON b.category_id = c.category_id
-        LEFT JOIN book_authors ba ON ba.book_id = b.book_id
-        LEFT JOIN authors a ON a.author_id = ba.author_id
         WHERE b.book_id = %s
-        GROUP BY b.book_id
-    """
-    return run_query(query, (book_id,), fetch="one")
+        """,
+        (book_id,),
+        fetch="one",
+    )
+    if not book:
+        return None
+    author_rows = run_query(
+        """
+        SELECT a.first_name, a.last_name
+        FROM authors a
+        JOIN book_authors ba ON ba.author_id = a.author_id
+        WHERE ba.book_id = %s
+        ORDER BY a.last_name
+        """,
+        (book_id,),
+    )
+    if author_rows:
+        book["authors"] = ", ".join(
+            f"{row['first_name']} {row['last_name']}".strip() for row in author_rows
+        )
+    else:
+        book["authors"] = ""
+    return book
 
 
 def fetch_active_loans(user_id: int) -> List[Dict]:

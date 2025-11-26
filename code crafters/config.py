@@ -26,6 +26,18 @@ def _from_streamlit_secrets(key: str) -> Optional[Any]:
     return None
 
 
+def get_db_backend() -> str:
+    """Return the configured DB engine."""
+    return os.getenv("DB_ENGINE", "mysql").lower()
+
+
+def get_sqlite_path() -> Path:
+    """Return path to sqlite file under project root."""
+    default = BASE_DIR / "database" / "library.db"
+    custom = os.getenv("SQLITE_PATH")
+    return Path(custom).expanduser() if custom else default
+
+
 def get_mysql_config() -> Dict[str, Any]:
     """
     Read database credentials from Streamlit secrets or env vars.

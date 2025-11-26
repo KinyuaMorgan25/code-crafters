@@ -13,7 +13,7 @@ from auth.authentication import (
     logout,
     register_user,
 )
-from pages import (
+from views import (
     render_admin_dashboard,
     render_book_catalog,
     render_profile_page,
@@ -32,7 +32,26 @@ def _login_form():
         user = authenticate_user(email.strip(), password)
         if user:
             create_session(user)
-            st.experimental_rerun()
+            st.rerun()
+        else:
+            st.error("Invalid credentials.")
+
+
+def _admin_login_form():
+    st.subheader("Admin Portal")
+    st.info("Use your librarian/admin account to manage the system.")
+    with st.form("admin_login_form"):
+        email = st.text_input("Admin email", placeholder="admin@example.com")
+        password = st.text_input("Admin password", type="password")
+        submitted = st.form_submit_button("Enter Admin Portal")
+    if submitted:
+        user = authenticate_user(email.strip(), password)
+        if user and user.get("role") == "admin":
+            create_session(user)
+            st.session_state["nav_choice"] = "Admin"
+            st.rerun()
+        elif user:
+            st.error("This account is not an admin.")
         else:
             st.error("Invalid credentials.")
 
@@ -62,11 +81,13 @@ def _register_form():
 
 def show_login_screen():
     st.title("Library Management System")
-    tabs = st.tabs(["Login", "Register"])
+    tabs = st.tabs(["Login", "Register", "Admin Portal"])
     with tabs[0]:
         _login_form()
     with tabs[1]:
         _register_form()
+    with tabs[2]:
+        _admin_login_form()
 
 
 def render_sidebar():
@@ -75,10 +96,12 @@ def render_sidebar():
     options = ["Dashboard", "Catalog", "Profile"]
     if user and user["role"] == "admin":
         options.insert(1, "Admin")
+    if "nav_choice" not in st.session_state:
+        st.session_state["nav_choice"] = options[0]
     choice = st.sidebar.radio("Go to", options, key="nav_choice")
     if st.sidebar.button("Logout"):
         logout()
-        st.experimental_rerun()
+        st.rerun()
     return choice
 
 

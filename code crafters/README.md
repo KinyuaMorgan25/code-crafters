@@ -19,26 +19,33 @@ config.py
 requirements.txt
 auth/
 database/
-pages/
+views/
 utils/
 .streamlit/
 ```
 
 ## Local Setup
 
-1. Create and seed the MySQL database using the provided schema.
-2. Create a virtual environment and install dependencies:
+1. Create a virtual environment and install dependencies:
 
 ```
 pip install -r requirements.txt
 ```
 
-3. Provide DB credentials via environment variables (`MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`) or Streamlit secrets.
-4. Run the app:
+2. Choose your database backend:
+   - **MySQL (production parity)**: create and seed the schema manually, then provide credentials via env vars (`MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, optional `MYSQL_PORT`) or Streamlit secrets.
+   - **SQLite (zero-config local dev)**: set `DB_ENGINE=sqlite` (and optionally `SQLITE_PATH=/custom/path/library.db`). The first launch will auto-create tables, 10+ categories, 15+ books, and sample copies you can borrow immediately.
+
+3. Run the app:
 
 ```
 streamlit run app.py
 ```
 
-Use the default admin email `kinyuamorgan90@gmail.com` to access the admin portal.
+### Default credentials & roles
+
+- Admin: `kinyuamorgan90@gmail.com` / `admin123` (also available via the **Admin Portal** tab on the landing page)
+- Patron: `patron@example.com` / `patron123`
+
+Use the Admin Portal tab to log in directly to the management experience; successful admin sign-in jumps straight into the Admin panel sidebar section.
 

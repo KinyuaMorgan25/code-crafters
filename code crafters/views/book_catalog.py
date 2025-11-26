@@ -27,7 +27,7 @@ def _render_book_card(book: dict, user_id: int) -> None:
                 success, message = borrow_book(user_id, book["book_id"])
                 (st.success if success else st.error)(message)
                 if success:
-                    st.experimental_rerun()
+                    st.rerun()
         with cols[1]:
             if st.button("Reserve", key=f"reserve_{book['book_id']}"):
                 success, message = create_reservation(user_id, book["book_id"])
@@ -70,9 +70,9 @@ def render_book_catalog() -> None:
     with cols[0]:
         if st.button("Previous") and st.session_state.catalog_page > 1:
             st.session_state.catalog_page -= 1
-            st.experimental_rerun()
+            st.rerun()
     with cols[1]:
         if st.button("Next") and len(books) == page_size:
             st.session_state.catalog_page += 1
-            st.experimental_rerun()
+            st.rerun()
 
